@@ -1,30 +1,43 @@
 /* =========================================================
    DENTYAR VERSION 1
-   Database Layer
+   Database Layer - Phase B
    Local-first | Sync-ready | Native-ready
+   IndexedDB Version 2
+   ========================================================= */
+
+"use strict";
+
+/* =========================================================
+   DATABASE CONFIG
    ========================================================= */
 
 const DENTYAR_DB_NAME = "DENTYAR_DB";
-const DENTYAR_DB_VERSION = 1;
+const DENTYAR_DB_VERSION = 2;
 
 const DENTYAR_STORES = {
     settings: "settings",
     users: "users",
+
     patients: "patients",
     patientMedical: "patientMedical",
     dentalCharts: "dentalCharts",
     toothHistory: "toothHistory",
     documents: "documents",
     patientTimeline: "patientTimeline",
+
     appointments: "appointments",
+
     services: "services",
     treatmentPlans: "treatmentPlans",
     treatments: "treatments",
+
     invoices: "invoices",
     payments: "payments",
     insurance: "insurance",
+
     laboratories: "laboratories",
     inventory: "inventory",
+
     reports: "reports",
     auditLogs: "auditLogs",
     backups: "backups",
@@ -33,9 +46,9 @@ const DENTYAR_STORES = {
 
 let dentyarDB = null;
 
-/* ---------------------------------------------------------
-   Utility
-   --------------------------------------------------------- */
+/* =========================================================
+   GENERAL UTILITIES
+   ========================================================= */
 
 function dentyarId(prefix = "id") {
     return (
@@ -51,14 +64,21 @@ function dentyarNow() {
     return new Date().toISOString();
 }
 
-/* ---------------------------------------------------------
-   Database Open
-   --------------------------------------------------------- */
+function dentyarSafeString(value) {
+    return String(value ?? "").trim();
+}
+
+/* =========================================================
+   DATABASE OPEN
+   ========================================================= */
 
 function openDentyarDB() {
     return new Promise((resolve, reject) => {
+
         if (!window.indexedDB) {
-            reject(new Error("IndexedDB is not supported."));
+            reject(
+                new Error("IndexedDB is not supported.")
+            );
             return;
         }
 
@@ -68,62 +88,241 @@ function openDentyarDB() {
         );
 
         request.onupgradeneeded = function (event) {
+
             const db = event.target.result;
+            const oldVersion = event.oldVersion;
 
-            createStore(db, "settings", "id");
-            createStore(db, "users", "id", ["username", "role"]);
-            createStore(db, "patients", "id", [
-                "fileNumber",
-                "nationalCode",
-                "mobile",
-                "lastName"
-            ]);
+            console.log(
+                "DENTYAR DB upgrade:",
+                oldVersion,
+                "→",
+                DENTYAR_DB_VERSION
+            );
 
-            createStore(db, "patientMedical", "id", ["patientId"]);
-            createStore(db, "dentalCharts", "id", ["patientId"]);
-            createStore(db, "toothHistory", "id", ["patientId", "toothNumber"]);
-            createStore(db, "documents", "id", ["patientId"]);
-            createStore(db, "patientTimeline", "id", ["patientId", "date"]);
+            /* ---------------------------------------------
+               CORE
+               --------------------------------------------- */
 
-            createStore(db, "appointments", "id", [
-                "patientId",
-                "doctorId",
-                "date"
-            ]);
+            createStore(
+                db,
+                "settings",
+                "id"
+            );
 
-            createStore(db, "services", "id", ["code", "category"]);
-            createStore(db, "treatmentPlans", "id", ["patientId"]);
-            createStore(db, "treatments", "id", ["patientId", "toothNumber"]);
+            createStore(
+                db,
+                "users",
+                "id",
+                ["username", "role"]
+            );
 
-            createStore(db, "invoices", "id", [
-                "patientId",
-                "invoiceNumber"
-            ]);
+            /* ---------------------------------------------
+               PATIENTS
+               --------------------------------------------- */
 
-            createStore(db, "payments", "id", ["patientId", "invoiceId"]);
-            createStore(db, "insurance", "id", ["name"]);
-            createStore(db, "laboratories", "id", ["name"]);
-            createStore(db, "inventory", "id", ["code", "name"]);
-            createStore(db, "reports", "id", ["type", "date"]);
-            createStore(db, "auditLogs", "id", [
-                "userId",
-                "action",
-                "date"
-            ]);
+            createStore(
+                db,
+                "patients",
+                "id",
+                [
+                    "fileNumber",
+                    "nationalCode",
+                    "mobile",
+                    "lastName",
+                    "firstName"
+                ]
+            );
 
-            createStore(db, "backups", "id", ["date"]);
-            createStore(db, "syncQueue", "id", [
-                "entity",
-                "entityId",
-                "status"
-            ]);
+            createStore(
+                db,
+                "patientMedical",
+                "id",
+                ["patientId"]
+            );
+
+            createStore(
+                db,
+                "dentalCharts",
+                "id",
+                ["patientId"]
+            );
+
+            createStore(
+                db,
+                "toothHistory",
+                "id",
+                [
+                    "patientId",
+                    "toothNumber"
+                ]
+            );
+
+            createStore(
+                db,
+                "documents",
+                "id",
+                ["patientId"]
+            );
+
+            createStore(
+                db,
+                "patientTimeline",
+                "id",
+                [
+                    "patientId",
+                    "date"
+                ]
+            );
+
+            /* ---------------------------------------------
+               APPOINTMENTS
+               --------------------------------------------- */
+
+            createStore(
+                db,
+                "appointments",
+                "id",
+                [
+                    "patientId",
+                    "doctorId",
+                    "date"
+                ]
+            );
+
+            /* ---------------------------------------------
+               TREATMENT
+               --------------------------------------------- */
+
+            createStore(
+                db,
+                "services",
+                "id",
+                [
+                    "code",
+                    "category"
+                ]
+            );
+
+            createStore(
+                db,
+                "treatmentPlans",
+                "id",
+                ["patientId"]
+            );
+
+            createStore(
+                db,
+                "treatments",
+                "id",
+                [
+                    "patientId",
+                    "toothNumber"
+                ]
+            );
+
+            /* ---------------------------------------------
+               FINANCE
+               --------------------------------------------- */
+
+            createStore(
+                db,
+                "invoices",
+                "id",
+                [
+                    "patientId",
+                    "invoiceNumber"
+                ]
+            );
+
+            createStore(
+                db,
+                "payments",
+                "id",
+                [
+                    "patientId",
+                    "invoiceId"
+                ]
+            );
+
+            createStore(
+                db,
+                "insurance",
+                "id",
+                ["name"]
+            );
+
+            /* ---------------------------------------------
+               LAB / INVENTORY
+               --------------------------------------------- */
+
+            createStore(
+                db,
+                "laboratories",
+                "id",
+                ["name"]
+            );
+
+            createStore(
+                db,
+                "inventory",
+                "id",
+                [
+                    "code",
+                    "name"
+                ]
+            );
+
+            /* ---------------------------------------------
+               SYSTEM
+               --------------------------------------------- */
+
+            createStore(
+                db,
+                "reports",
+                "id",
+                [
+                    "type",
+                    "date"
+                ]
+            );
+
+            createStore(
+                db,
+                "auditLogs",
+                "id",
+                [
+                    "userId",
+                    "action",
+                    "date"
+                ]
+            );
+
+            createStore(
+                db,
+                "backups",
+                "id",
+                ["date"]
+            );
+
+            createStore(
+                db,
+                "syncQueue",
+                "id",
+                [
+                    "entity",
+                    "entityId",
+                    "status"
+                ]
+            );
         };
 
         request.onsuccess = function (event) {
+
             dentyarDB = event.target.result;
 
             dentyarDB.onversionchange = function () {
                 dentyarDB.close();
+                dentyarDB = null;
             };
 
             resolve(dentyarDB);
@@ -132,38 +331,78 @@ function openDentyarDB() {
         request.onerror = function () {
             reject(request.error);
         };
+
+        request.onblocked = function () {
+            console.warn(
+                "DENTYAR database upgrade is blocked."
+            );
+        };
     });
 }
 
-/* ---------------------------------------------------------
-   Create Object Store
-   --------------------------------------------------------- */
+/* =========================================================
+   OBJECT STORE CREATION
+   ========================================================= */
 
-function createStore(db, name, keyPath, indexes = []) {
-    if (db.objectStoreNames.contains(name)) {
+function createStore(
+    db,
+    name,
+    keyPath,
+    indexes = []
+) {
+
+    let store;
+
+    if (!db.objectStoreNames.contains(name)) {
+
+        store = db.createObjectStore(
+            name,
+            {
+                keyPath: keyPath
+            }
+        );
+
+    } else {
+
+        store = null;
+    }
+
+    if (!store) {
         return;
     }
 
-    const store = db.createObjectStore(name, {
-        keyPath: keyPath
-    });
-
     indexes.forEach(function (indexName) {
+
         try {
-            store.createIndex(indexName, indexName, {
-                unique: false
-            });
+
+            if (!store.indexNames.contains(indexName)) {
+
+                store.createIndex(
+                    indexName,
+                    indexName,
+                    {
+                        unique: false
+                    }
+                );
+            }
+
         } catch (error) {
-            console.warn("Index creation skipped:", indexName);
+
+            console.warn(
+                "Index creation skipped:",
+                indexName,
+                error
+            );
         }
     });
 }
 
-/* ---------------------------------------------------------
-   Ensure Database
-   --------------------------------------------------------- */
+/* =========================================================
+   ENSURE DATABASE
+   ========================================================= */
 
 async function ensureDentyarDB() {
+
     if (dentyarDB) {
         return dentyarDB;
     }
@@ -171,11 +410,15 @@ async function ensureDentyarDB() {
     return await openDentyarDB();
 }
 
-/* ---------------------------------------------------------
-   Add
-   --------------------------------------------------------- */
+/* =========================================================
+   ADD
+   ========================================================= */
 
-async function dentyarAdd(storeName, data) {
+async function dentyarAdd(
+    storeName,
+    data
+) {
+
     const db = await ensureDentyarDB();
 
     const record = {
@@ -192,34 +435,51 @@ async function dentyarAdd(storeName, data) {
 
     record.updatedAt = dentyarNow();
 
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(
-            storeName,
-            "readwrite"
-        );
+    return new Promise(
+        (resolve, reject) => {
 
-        const store = transaction.objectStore(storeName);
-        const request = store.add(record);
+            const transaction =
+                db.transaction(
+                    storeName,
+                    "readwrite"
+                );
 
-        request.onsuccess = function () {
-            resolve(record);
-        };
+            const store =
+                transaction.objectStore(
+                    storeName
+                );
 
-        request.onerror = function () {
-            reject(request.error);
-        };
-    });
+            const request =
+                store.add(record);
+
+            request.onsuccess =
+                function () {
+                    resolve(record);
+                };
+
+            request.onerror =
+                function () {
+                    reject(request.error);
+                };
+        }
+    );
 }
 
-/* ---------------------------------------------------------
-   Update
-   --------------------------------------------------------- */
+/* =========================================================
+   UPDATE / UPSERT
+   ========================================================= */
 
-async function dentyarUpdate(storeName, data) {
+async function dentyarUpdate(
+    storeName,
+    data
+) {
+
     const db = await ensureDentyarDB();
 
     if (!data || !data.id) {
-        throw new Error("Record ID is required.");
+        throw new Error(
+            "Record ID is required."
+        );
     }
 
     const record = {
@@ -227,257 +487,568 @@ async function dentyarUpdate(storeName, data) {
         updatedAt: dentyarNow()
     };
 
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(
-            storeName,
-            "readwrite"
-        );
+    return new Promise(
+        (resolve, reject) => {
 
-        const store = transaction.objectStore(storeName);
-        const request = store.put(record);
+            const transaction =
+                db.transaction(
+                    storeName,
+                    "readwrite"
+                );
 
-        request.onsuccess = function () {
-            resolve(record);
-        };
+            const store =
+                transaction.objectStore(
+                    storeName
+                );
 
-        request.onerror = function () {
-            reject(request.error);
-        };
-    });
-}
+            const request =
+                store.put(record);
 
-/* ---------------------------------------------------------
-   Get By ID
-   --------------------------------------------------------- */
+            request.onsuccess =
+                function () {
+                    resolve(record);
+                };
 
-async function dentyarGet(storeName, id) {
-    const db = await ensureDentyarDB();
-
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(
-            storeName,
-            "readonly"
-        );
-
-        const store = transaction.objectStore(storeName);
-        const request = store.get(id);
-
-        request.onsuccess = function () {
-            resolve(request.result || null);
-        };
-
-        request.onerror = function () {
-            reject(request.error);
-        };
-    });
-}
-
-/* ---------------------------------------------------------
-   Get All
-   --------------------------------------------------------- */
-
-async function dentyarGetAll(storeName) {
-    const db = await ensureDentyarDB();
-
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(
-            storeName,
-            "readonly"
-        );
-
-        const store = transaction.objectStore(storeName);
-        const request = store.getAll();
-
-        request.onsuccess = function () {
-            resolve(request.result || []);
-        };
-
-        request.onerror = function () {
-            reject(request.error);
-        };
-    });
-}
-
-/* ---------------------------------------------------------
-   Delete
-   --------------------------------------------------------- */
-
-async function dentyarDelete(storeName, id) {
-    const db = await ensureDentyarDB();
-
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(
-            storeName,
-            "readwrite"
-        );
-
-        const store = transaction.objectStore(storeName);
-        const request = store.delete(id);
-
-        request.onsuccess = function () {
-            resolve(true);
-        };
-
-        request.onerror = function () {
-            reject(request.error);
-        };
-    });
-}
-
-/* ---------------------------------------------------------
-   Search
-   --------------------------------------------------------- */
-
-async function dentyarSearchPatients(query) {
-    const patients = await dentyarGetAll(
-        DENTYAR_STORES.patients
-    );
-
-    const q = String(query || "")
-        .trim()
-        .toLowerCase();
-
-    if (!q) {
-        return patients;
-    }
-
-    return patients.filter(function (patient) {
-        return [
-            patient.firstName,
-            patient.lastName,
-            patient.fileNumber,
-            patient.mobile,
-            patient.nationalCode
-        ].some(function (value) {
-            return String(value || "")
-                .toLowerCase()
-                .includes(q);
-        });
-    });
-}
-
-/* ---------------------------------------------------------
-   Patient File Number
-   --------------------------------------------------------- */
-
-async function generatePatientFileNumber() {
-    const patients = await dentyarGetAll(
-        DENTYAR_STORES.patients
-    );
-
-    let maxNumber = 0;
-
-    patients.forEach(function (patient) {
-        const number = parseInt(
-            patient.fileNumber,
-            10
-        );
-
-        if (!isNaN(number) && number > maxNumber) {
-            maxNumber = number;
+            request.onerror =
+                function () {
+                    reject(request.error);
+                };
         }
-    });
-
-    return String(maxNumber + 1).padStart(6, "0");
-}
-
-/* ---------------------------------------------------------
-   Patient Creation
-   --------------------------------------------------------- */
-
-async function createDentyarPatient(patientData) {
-    const fileNumber =
-        patientData.fileNumber ||
-        await generatePatientFileNumber();
-
-    const patient = {
-        ...patientData,
-        fileNumber: fileNumber,
-        entityType: "patient",
-        createdAt: dentyarNow(),
-        updatedAt: dentyarNow()
-    };
-
-    return await dentyarAdd(
-        DENTYAR_STORES.patients,
-        patient
     );
 }
 
-/* ---------------------------------------------------------
-   Patient Medical File
-   --------------------------------------------------------- */
+/* =========================================================
+   GET BY ID
+   ========================================================= */
 
-async function savePatientMedical(
-    patientId,
-    medicalData
+async function dentyarGet(
+    storeName,
+    id
 ) {
-    const existing = await findByIndex(
-        DENTYAR_STORES.patientMedical,
-        "patientId",
-        patientId
-    );
 
-    const record = {
-        ...(existing || {}),
-        ...medicalData,
-        patientId: patientId,
-        updatedAt: dentyarNow()
-    };
+    const db = await ensureDentyarDB();
 
-    if (!record.id) {
-        record.id = dentyarId("medical");
-        record.createdAt = dentyarNow();
-    }
+    return new Promise(
+        (resolve, reject) => {
 
-    return await dentyarUpdate(
-        DENTYAR_STORES.patientMedical,
-        record
+            const transaction =
+                db.transaction(
+                    storeName,
+                    "readonly"
+                );
+
+            const store =
+                transaction.objectStore(
+                    storeName
+                );
+
+            const request =
+                store.get(id);
+
+            request.onsuccess =
+                function () {
+
+                    resolve(
+                        request.result || null
+                    );
+                };
+
+            request.onerror =
+                function () {
+
+                    reject(request.error);
+                };
+        }
     );
 }
 
-/* ---------------------------------------------------------
-   Find By Index
-   --------------------------------------------------------- */
+/* =========================================================
+   GET ALL
+   ========================================================= */
+
+async function dentyarGetAll(
+    storeName
+) {
+
+    const db = await ensureDentyarDB();
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const transaction =
+                db.transaction(
+                    storeName,
+                    "readonly"
+                );
+
+            const store =
+                transaction.objectStore(
+                    storeName
+                );
+
+            const request =
+                store.getAll();
+
+            request.onsuccess =
+                function () {
+
+                    resolve(
+                        request.result || []
+                    );
+                };
+
+            request.onerror =
+                function () {
+
+                    reject(request.error);
+                };
+        }
+    );
+}
+
+/* =========================================================
+   DELETE
+   ========================================================= */
+
+async function dentyarDelete(
+    storeName,
+    id
+) {
+
+    const db = await ensureDentyarDB();
+
+    return new Promise(
+        (resolve, reject) => {
+
+            const transaction =
+                db.transaction(
+                    storeName,
+                    "readwrite"
+                );
+
+            const store =
+                transaction.objectStore(
+                    storeName
+                );
+
+            const request =
+                store.delete(id);
+
+            request.onsuccess =
+                function () {
+
+                    resolve(true);
+                };
+
+            request.onerror =
+                function () {
+
+                    reject(request.error);
+                };
+        }
+    );
+}
+
+/* =========================================================
+   FIND BY INDEX
+   ========================================================= */
 
 async function findByIndex(
     storeName,
     indexName,
     value
 ) {
+
     const db = await ensureDentyarDB();
 
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction(
-            storeName,
-            "readonly"
-        );
+    return new Promise(
+        (resolve, reject) => {
 
-        const store = transaction.objectStore(
-            storeName
-        );
+            const transaction =
+                db.transaction(
+                    storeName,
+                    "readonly"
+                );
 
-        if (!store.indexNames.contains(indexName)) {
-            resolve(null);
-            return;
+            const store =
+                transaction.objectStore(
+                    storeName
+                );
+
+            if (
+                !store.indexNames.contains(
+                    indexName
+                )
+            ) {
+
+                resolve(null);
+                return;
+            }
+
+            const index =
+                store.index(indexName);
+
+            const request =
+                index.get(value);
+
+            request.onsuccess =
+                function () {
+
+                    resolve(
+                        request.result || null
+                    );
+                };
+
+            request.onerror =
+                function () {
+
+                    reject(request.error);
+                };
         }
-
-        const index = store.index(indexName);
-        const request = index.get(value);
-
-        request.onsuccess = function () {
-            resolve(request.result || null);
-        };
-
-        request.onerror = function () {
-            reject(request.error);
-        };
-    });
+    );
 }
 
-/* ---------------------------------------------------------
-   Patient Timeline
-   --------------------------------------------------------- */
+/* =========================================================
+   PATIENT SEARCH
+   ========================================================= */
+
+async function dentyarSearchPatients(
+    query
+) {
+
+    const patients =
+        await dentyarGetAll(
+            DENTYAR_STORES.patients
+        );
+
+    const q =
+        dentyarSafeString(query)
+            .toLowerCase();
+
+    if (!q) {
+        return patients;
+    }
+
+    return patients.filter(
+        function (patient) {
+
+            return [
+
+                patient.firstName,
+                patient.lastName,
+                patient.fileNumber,
+                patient.mobile,
+                patient.nationalCode,
+                patient.fatherName
+
+            ].some(
+                function (value) {
+
+                    return String(
+                        value || ""
+                    )
+                    .toLowerCase()
+                    .includes(q);
+                }
+            );
+        }
+    );
+}
+
+/* =========================================================
+   GENERATE PATIENT FILE NUMBER
+   ========================================================= */
+
+async function generatePatientFileNumber() {
+
+    const patients =
+        await dentyarGetAll(
+            DENTYAR_STORES.patients
+        );
+
+    let maxNumber = 0;
+
+    patients.forEach(
+        function (patient) {
+
+            const number =
+                parseInt(
+                    patient.fileNumber,
+                    10
+                );
+
+            if (
+                !isNaN(number) &&
+                number > maxNumber
+            ) {
+
+                maxNumber = number;
+            }
+        }
+    );
+
+    return String(
+        maxNumber + 1
+    ).padStart(6, "0");
+}
+
+/* =========================================================
+   CREATE PATIENT
+   ========================================================= */
+
+async function createDentyarPatient(
+    patientData
+) {
+
+    const data = {
+        ...patientData
+    };
+
+    const fileNumber =
+        data.fileNumber ||
+        await generatePatientFileNumber();
+
+    const patient = {
+
+        ...data,
+
+        fileNumber:
+            String(fileNumber),
+
+        entityType:
+            "patient",
+
+        createdAt:
+            dentyarNow(),
+
+        updatedAt:
+            dentyarNow()
+    };
+
+    const saved =
+        await dentyarAdd(
+            DENTYAR_STORES.patients,
+            patient
+        );
+
+    await addPatientTimeline(
+        saved.id,
+        "patient_created",
+        "ایجاد پرونده بیمار",
+        {
+            fileNumber:
+                saved.fileNumber
+        }
+    );
+
+    await addAuditLog(
+        "create",
+        "patient",
+        saved.id,
+        null,
+        {
+            fileNumber:
+                saved.fileNumber
+        }
+    );
+
+    await addToSyncQueue(
+        "patient",
+        saved.id,
+        "create",
+        saved
+    );
+
+    return saved;
+}
+
+/* =========================================================
+   UPDATE PATIENT
+   ========================================================= */
+
+async function updateDentyarPatient(
+    patientId,
+    patientData
+) {
+
+    const existing =
+        await dentyarGet(
+            DENTYAR_STORES.patients,
+            patientId
+        );
+
+    if (!existing) {
+        throw new Error(
+            "Patient not found."
+        );
+    }
+
+    const updated = {
+        ...existing,
+        ...patientData,
+        id: patientId,
+        updatedAt: dentyarNow()
+    };
+
+    const saved =
+        await dentyarUpdate(
+            DENTYAR_STORES.patients,
+            updated
+        );
+
+    await addPatientTimeline(
+        patientId,
+        "patient_updated",
+        "ویرایش پرونده بیمار",
+        {}
+    );
+
+    await addAuditLog(
+        "update",
+        "patient",
+        patientId,
+        null,
+        {}
+    );
+
+    await addToSyncQueue(
+        "patient",
+        patientId,
+        "update",
+        saved
+    );
+
+    return saved;
+}
+
+/* =========================================================
+   PATIENT MEDICAL FILE
+   ========================================================= */
+
+async function savePatientMedical(
+    patientId,
+    medicalData
+) {
+
+    const existing =
+        await findByIndex(
+            DENTYAR_STORES.patientMedical,
+            "patientId",
+            patientId
+        );
+
+    const record = {
+
+        ...(existing || {}),
+
+        ...medicalData,
+
+        patientId:
+            patientId,
+
+        updatedAt:
+            dentyarNow()
+    };
+
+    if (!record.id) {
+
+        record.id =
+            dentyarId("medical");
+
+        record.createdAt =
+            dentyarNow();
+    }
+
+    const saved =
+        await dentyarUpdate(
+            DENTYAR_STORES.patientMedical,
+            record
+        );
+
+    await addPatientTimeline(
+        patientId,
+        "medical_updated",
+        "به‌روزرسانی پرونده پزشکی",
+        {}
+    );
+
+    return saved;
+}
+
+/* =========================================================
+   DENTAL CHART
+   ========================================================= */
+
+async function saveDentalChart(
+    patientId,
+    chartData
+) {
+
+    const existing =
+        await findByIndex(
+            DENTYAR_STORES.dentalCharts,
+            "patientId",
+            patientId
+        );
+
+    const record = {
+
+        ...(existing || {}),
+
+        ...chartData,
+
+        patientId:
+            patientId,
+
+        updatedAt:
+            dentyarNow()
+    };
+
+    if (!record.id) {
+
+        record.id =
+            dentyarId("chart");
+
+        record.createdAt =
+            dentyarNow();
+    }
+
+    return await dentyarUpdate(
+        DENTYAR_STORES.dentalCharts,
+        record
+    );
+}
+
+/* =========================================================
+   TOOTH HISTORY
+   ========================================================= */
+
+async function addToothHistory(
+    patientId,
+    toothNumber,
+    historyData
+) {
+
+    return await dentyarAdd(
+        DENTYAR_STORES.toothHistory,
+        {
+            patientId:
+                patientId,
+
+            toothNumber:
+                String(toothNumber),
+
+            ...historyData,
+
+            date:
+                dentyarNow()
+        }
+    );
+}
+
+/* =========================================================
+   PATIENT TIMELINE
+   ========================================================= */
 
 async function addPatientTimeline(
     patientId,
@@ -485,21 +1056,56 @@ async function addPatientTimeline(
     title,
     details = {}
 ) {
+
     return await dentyarAdd(
         DENTYAR_STORES.patientTimeline,
         {
-            patientId: patientId,
-            eventType: eventType,
-            title: title,
-            details: details,
-            date: dentyarNow()
+
+            patientId:
+                patientId,
+
+            eventType:
+                eventType,
+
+            title:
+                title,
+
+            details:
+                details,
+
+            date:
+                dentyarNow()
         }
     );
 }
 
-/* ---------------------------------------------------------
-   Audit Log
-   --------------------------------------------------------- */
+/* =========================================================
+   DOCUMENT
+   ========================================================= */
+
+async function addPatientDocument(
+    patientId,
+    documentData
+) {
+
+    return await dentyarAdd(
+        DENTYAR_STORES.documents,
+        {
+
+            patientId:
+                patientId,
+
+            ...documentData,
+
+            uploadedAt:
+                dentyarNow()
+        }
+    );
+}
+
+/* =========================================================
+   AUDIT LOG
+   ========================================================= */
 
 async function addAuditLog(
     action,
@@ -508,22 +1114,35 @@ async function addAuditLog(
     userId = null,
     details = {}
 ) {
+
     return await dentyarAdd(
         DENTYAR_STORES.auditLogs,
         {
-            action: action,
-            entity: entity,
-            entityId: entityId,
-            userId: userId,
-            details: details,
-            date: dentyarNow()
+
+            action:
+                action,
+
+            entity:
+                entity,
+
+            entityId:
+                entityId,
+
+            userId:
+                userId,
+
+            details:
+                details,
+
+            date:
+                dentyarNow()
         }
     );
 }
 
-/* ---------------------------------------------------------
-   Sync Queue
-   --------------------------------------------------------- */
+/* =========================================================
+   SYNC QUEUE
+   ========================================================= */
 
 async function addToSyncQueue(
     entity,
@@ -531,97 +1150,200 @@ async function addToSyncQueue(
     operation,
     data
 ) {
+
     return await dentyarAdd(
         DENTYAR_STORES.syncQueue,
         {
-            entity: entity,
-            entityId: entityId,
-            operation: operation,
-            data: data,
-            status: "pending",
-            queuedAt: dentyarNow()
+
+            entity:
+                entity,
+
+            entityId:
+                entityId,
+
+            operation:
+                operation,
+
+            data:
+                data,
+
+            status:
+                "pending",
+
+            queuedAt:
+                dentyarNow()
         }
     );
 }
 
-/* ---------------------------------------------------------
-   Database Export
-   --------------------------------------------------------- */
+/* =========================================================
+   DATABASE EXPORT
+   ========================================================= */
 
 async function exportDentyarDatabase() {
+
     const backup = {
-        database: DENTYAR_DB_NAME,
-        version: DENTYAR_DB_VERSION,
-        createdAt: dentyarNow(),
-        stores: {}
+
+        database:
+            DENTYAR_DB_NAME,
+
+        version:
+            DENTYAR_DB_VERSION,
+
+        createdAt:
+            dentyarNow(),
+
+        stores:
+            {}
     };
 
-    for (const storeName of Object.values(
-        DENTYAR_STORES
-    )) {
+    for (
+        const storeName
+        of Object.values(DENTYAR_STORES)
+    ) {
+
         backup.stores[storeName] =
-            await dentyarGetAll(storeName);
+            await dentyarGetAll(
+                storeName
+            );
     }
 
     return backup;
 }
 
-/* ---------------------------------------------------------
-   Database Statistics
-   --------------------------------------------------------- */
+/* =========================================================
+   DATABASE STATISTICS
+   ========================================================= */
 
 async function getDentyarDatabaseStats() {
+
     const stats = {};
 
-    for (const storeName of Object.values(
-        DENTYAR_STORES
-    )) {
-        const records =
-            await dentyarGetAll(storeName);
+    for (
+        const storeName
+        of Object.values(DENTYAR_STORES)
+    ) {
 
-        stats[storeName] = records.length;
+        const records =
+            await dentyarGetAll(
+                storeName
+            );
+
+        stats[storeName] =
+            records.length;
     }
 
     return stats;
 }
 
-/* ---------------------------------------------------------
-   Initialize
-   --------------------------------------------------------- */
+/* =========================================================
+   DATABASE RESET
+   ========================================================= */
+
+async function closeDentyarDB() {
+
+    if (dentyarDB) {
+
+        dentyarDB.close();
+        dentyarDB = null;
+    }
+}
+
+/* =========================================================
+   PUBLIC API
+   ========================================================= */
 
 window.DENTYAR_DB = {
-    name: DENTYAR_DB_NAME,
-    version: DENTYAR_DB_VERSION,
-    stores: DENTYAR_STORES,
 
-    open: openDentyarDB,
-    add: dentyarAdd,
-    update: dentyarUpdate,
-    get: dentyarGet,
-    getAll: dentyarGetAll,
-    delete: dentyarDelete,
+    name:
+        DENTYAR_DB_NAME,
 
-    searchPatients: dentyarSearchPatients,
-    createPatient: createDentyarPatient,
-    savePatientMedical: savePatientMedical,
+    version:
+        DENTYAR_DB_VERSION,
 
-    addPatientTimeline: addPatientTimeline,
-    addAuditLog: addAuditLog,
-    addToSyncQueue: addToSyncQueue,
+    stores:
+        DENTYAR_STORES,
 
-    exportDatabase: exportDentyarDatabase,
-    getStats: getDentyarDatabaseStats
+    open:
+        openDentyarDB,
+
+    close:
+        closeDentyarDB,
+
+    add:
+        dentyarAdd,
+
+    update:
+        dentyarUpdate,
+
+    get:
+        dentyarGet,
+
+    getAll:
+        dentyarGetAll,
+
+    delete:
+        dentyarDelete,
+
+    findByIndex:
+        findByIndex,
+
+    searchPatients:
+        dentyarSearchPatients,
+
+    generatePatientFileNumber:
+        generatePatientFileNumber,
+
+    createPatient:
+        createDentyarPatient,
+
+    updatePatient:
+        updateDentyarPatient,
+
+    savePatientMedical:
+        savePatientMedical,
+
+    saveDentalChart:
+        saveDentalChart,
+
+    addToothHistory:
+        addToothHistory,
+
+    addPatientTimeline:
+        addPatientTimeline,
+
+    addPatientDocument:
+        addPatientDocument,
+
+    addAuditLog:
+        addAuditLog,
+
+    addToSyncQueue:
+        addToSyncQueue,
+
+    exportDatabase:
+        exportDentyarDatabase,
+
+    getStats:
+        getDentyarDatabaseStats
 };
 
-/* Automatically initialize database */
+/* =========================================================
+   AUTO INITIALIZATION
+   ========================================================= */
 
 openDentyarDB()
     .then(function () {
+
         console.log(
-            "DENTYAR database initialized successfully."
+            "DENTYAR VERSION 1 database initialized.",
+            "DB Version:",
+            DENTYAR_DB_VERSION
         );
+
     })
     .catch(function (error) {
+
         console.error(
             "DENTYAR database initialization failed:",
             error
