@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="theme-color" content="#0f766e">
+  <meta name="description" content="دنت‌یار؛ دستیار هوشمند دندان‌پزشکی شما">
+
+  <title>DENTYAR | دنت‌یار</title>
+
+  <style>
+    :root {
+      --teal: #0f766e;
+      --teal-dark: #115e59;
+      --navy: #17324d;
+      --red: #c62828;
+      --bg: #f4f7f8;
+      --white: #ffffff;
+      --border: #dce5e8;
+      --text: #243746;
+      --muted: #71808a;
+      --shadow: 0 4px 18px rgba(23, 50, 77, 0.08);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+    }
+
+    body {
+      font-family:
+        Tahoma,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+    }
+
+    /* =========================
+       HEADER
+       ========================= */
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 1250px;
+      min-height: 72px;
+      margin: 0 auto;
+      padding: 10px 16px;
+
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 13px;
+      background: var(--teal);
+      color: #fff;
+
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .brand-area {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .brand-name {
+      color: var(--navy);
+      font-size: 21px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .brand-tagline {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .logout-btn {
+      border: 1px solid #efc7c7;
+      background: #fff;
+      color: var(--red);
+
+      border-radius: 10px;
+      padding: 9px 13px;
+
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .logout-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* =========================
+       MAIN
+       ========================= */
+
+    .app-main {
+      width: 100%;
+      max-width: 1250px;
+      margin: 0 auto;
+      padding: 22px 16px 35px;
+    }
+
+    .clinic-header {
+      background:
+        linear-gradient(
+          135deg,
+          #ffffff 0%,
+          #f0f9f8 100%
+        );
+
+      border: 1px solid #d9e8e7;
+      border-radius: 18px;
+
+      padding: 22px;
+      margin-bottom: 18px;
+
+      box-shadow: var(--shadow);
+    }
+
+    .clinic-name {
+      margin: 0;
+      color: var(--navy);
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .clinic-description {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .project-badge {
+      display: inline-block;
+      margin-top: 14px;
+
+      padding: 6px 11px;
+
+      border-radius: 50px;
+      background: #e5f4f2;
+      color: var(--teal);
+
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* =========================
+       DASHBOARD
+       ========================= */
+
+    .section-title {
+      margin: 0 0 13px;
+
+      color: var(--navy);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .dashboard-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(auto-fit, minmax(190px, 1fr));
+
+      gap: 14px;
+    }
+
+    .dashboard-card {
+      min-height: 118px;
+
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+
+      padding: 18px;
+
+      box-shadow: var(--shadow);
+
+      cursor: pointer;
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        border-color 0.15s ease;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+      border-color: #bdd8d5;
+      box-shadow: 0 7px 22px rgba(23, 50, 77, 0.10);
+    }
+
+    .card-icon {
+      width: 38px;
+      height: 38px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      margin-bottom: 11px;
+
+      border-radius: 10px;
+      background: #e8f5f3;
+      color: var(--teal);
+
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .card-title {
+      color: var(--navy);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .card-description {
+      margin-top: 6px;
+
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    /* =========================
+       FOOTER
+       ========================= */
+
+    .footer {
+      text-align: center;
+      padding: 25px 15px 10px;
+
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.8;
+    }
+
+    /* =========================
+       MOBILE
+       ========================= */
+
+    @media (max-width: 600px) {
+
+      .header-inner {
+        min-height: 64px;
+        padding: 8px 11px;
+        gap: 10px;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        flex-basis: 42px;
+        border-radius: 11px;
+        font-size: 16px;
+      }
+
+      .brand-name {
+        font-size: 17px;
+      }
+
+      .brand-tagline {
+        font-size: 10px;
+      }
+
+      .logout-btn {
+        padding: 8px 9px;
+        font-size: 11px;
+      }
+
+      .app-main {
+        padding: 15px 11px 25px;
+      }
+
+      .clinic-header {
+        padding: 17px;
+        border-radius: 15px;
+      }
+
+      .clinic-name {
+        font-size: 21px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+      }
+
+      .dashboard-card {
+        min-height: 110px;
+        padding: 14px;
+      }
+
+      .card-title {
+        font-size: 13px;
+      }
+
+      .card-description {
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================
+       HEADER
+       ========================= -->
+
+  <header class="app-header">
+    <div class="header-inner">
+
+      <div class="brand-mark">
+        DY
+      </div>
+
+      <div class="brand-area">
+        <div class="brand-name">
+          DENTYAR | دنت‌یار
+        </div>
+
+        <div class="brand-tagline">
+          دنت‌یار؛ دستیار هوشمند دندان‌پزشکی شما
+        </div>
+      </div>
+
+      <button
+        class="logout-btn"
+        type="button"
+        onclick="handleLogout()"
+      >
+        خروج
+      </button>
+
+    </div>
+  </header>
+
+
+  <!-- =========================
+       MAIN
+       ========================= -->
+
+  <main class="app-main">
+
+    <section class="clinic-header">
+
+      <h1 class="clinic-name">
+        مطب لبخند زیبا
+      </h1>
+
+      <p class="clinic-description">
+        طراح، مدیر پروژه و پشتیبان: حمید آل کثیر
+      </p>
+
+      <span class="project-badge">
+        DENTYAR VERSION 1 • FOUNDATION
+      </span>
+
+    </section>
+
+
+    <section>
+
+      <h2 class="section-title">
+        بخش‌های اصلی
+      </h2>
+
+      <div class="dashboard-grid">
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('داشبورد')">
+          <div class="card-icon">⌂</div>
+          <div class="card-title">داشبورد</div>
+          <div class="card-description">
+            مرکز مدیریت اطلاعات و عملیات مطب
+          </div>
+        </div>
+
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('بیماران و پرونده‌ها')">
+          <div class="card-icon">ب</div>
+          <div class="card-title">
+            بیماران و پرونده‌ها
+          </div>
+          <div class="card-description">
+            ثبت بیمار و پرونده الکترونیک پزشکی
+          </div>
+        </div>
+
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('نوبت‌دهی')">
+          <div class="card-icon">ن</div>
+          <div class="card-title">
+            نوبت‌دهی
+          </div>
+          <div class="card-description">
+            مدیریت نوبت‌ها، مراجعات و برنامه کاری
+          </div>
+        </div>
+
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('دندان و درمان')">
+          <div class="card-icon">د</div>
+          <div class="card-title">
+            دندان و درمان
+          </div>
+          <div class="card-description">
+            نمودار دندان، سوابق و طرح‌های درمان
+          </div>
+        </div>
+
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('خدمات و تعرفه‌ها')">
+          <div class="card-icon">خ</div>
+          <div class="card-title">
+            خدمات و تعرفه‌ها
+          </div>
+          <div class="card-description">
+            خدمات، قیمت‌گذاری و تنظیمات بیمه
+          </div>
+        </div>
+
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('مالی و فاکتورها')">
+          <div class="card-icon">ف</div>
+          <div class="card-title">
+            مالی و فاکتورها
+          </div>
+          <div class="card-description">
+            دریافت‌ها، پرداخت‌ها و فاکتورهای بیمار
+          </div>
+        </div>
+
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('لابراتوار')">
+          <div class="card-icon">ل</div>
+          <div class="card-title">
+            لابراتوار
+          </div>
+          <div class="card-description">
+            مدیریت سفارش‌ها و وضعیت کارهای لابراتوار
+          </div>
+        </div>
+
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('انبار')">
+          <div class="card-icon">ا</div>
+          <div class="card-title">
+            انبار
+          </div>
+          <div class="card-description">
+            موجودی، ورود و خروج اقلام مصرفی
+          </div>
+        </div>
+
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('گزارش‌ها')">
+          <div class="card-icon">گ</div>
+          <div class="card-title">
+            گزارش‌ها
+          </div>
+          <div class="card-description">
+            موتور گزارش‌گیری و گزارش‌های مدیریتی
+          </div>
+        </div>
+
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('پشتیبان‌گیری')">
+          <div class="card-icon">پ</div>
+          <div class="card-title">
+            پشتیبان‌گیری
+          </div>
+          <div class="card-description">
+            Backup و Restore اطلاعات
+          </div>
+        </div>
+
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('تنظیمات')">
+          <div class="card-icon">⚙</div>
+          <div class="card-title">
+            تنظیمات
+          </div>
+          <div class="card-description">
+            تنظیمات مطب، کاربران و سیستم
+          </div>
+        </div>
+
+
+        <div class="dashboard-card"
+             onclick="showComingSoon('راهنما و ارتباط با ما')">
+          <div class="card-icon">؟</div>
+          <div class="card-title">
+            راهنما و ارتباط با ما
+          </div>
+          <div class="card-description">
+            راهنمای استفاده و پشتیبانی دنت‌یار
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer class="footer">
+
+    DENTYAR | دنت‌یار
+    <br>
+
+    Local-first • Sync-ready • Native-ready
+
+  </footer>
+
+
+  <script>
+
+    function showComingSoon(section) {
+      alert(
+        section +
+        " در مرحله بعدی توسعه DENTYAR VERSION 1 فعال خواهد شد."
+      );
+    }
+
+    function handleLogout() {
+      alert(
+        "خروج امن در نسخه عملیاتی DENTYAR پیاده‌سازی خواهد شد."
+      );
+    }
+
+  </script>
+
+</body>
+</html>
