@@ -1,1 +1,1 @@
-{"name":"DENTYAR VERSION 1","short_name":"DENTYAR","start_url":"./","display":"standalone","dir":"rtl","lang":"fa","background_color":"#f4f7f8","theme_color":"#0f766e"}
+{"name":"DENTYAR","short_name":"دنت‌یار","lang":"fa","dir":"rtl","start_url":".","display":"standalone","background_color":"#eef2f7","theme_color":"#eef2f7","icons":[{"src":"assets/logo.png","sizes":"any","type":"image/png"}]}
