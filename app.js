@@ -1,7 +1,1 @@
-import{initErrors}from'./core/errors.js';import{open}from'./core/db.js';
-import{renderLogin}from'./ui/login.js';import{renderShell}from'./ui/shell.js';import{maybeSetup}from'./ui/setup.js';
-initErrors();
-const root=document.getElementById('app');
-const login=()=>renderLogin(root,async()=>{await maybeSetup();renderShell(root,login)});
-open().then(login);
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=1.0.0').catch(()=>{});
+(()=>{'use strict';const $=id=>document.getElementById(id),login=$("login"),dash=$("dash"),pin=$("pin"),msg=$("msg"),logout=$("logout");function showDash(){login.hidden=true;dash.hidden=false;logout.hidden=false}function showLogin(){login.hidden=false;dash.hidden=true;logout.hidden=true;pin.value=''}$("enter").onclick=()=>{if(!pin.value.trim()){msg.textContent='لطفاً رمز ورود را وارد کنید.';return}msg.textContent='';showDash()};pin.onkeydown=e=>{if(e.key==='Enter')$("enter").click()};logout.onclick=showLogin;showLogin()})();

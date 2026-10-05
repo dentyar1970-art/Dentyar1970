@@ -1,7 +1,6 @@
-# DENTYAR VERSION 1 — Experimental Foundation
+# DENTYAR VERSION 1 — Experimental
+نسخه آزمایشی مستقل برای تست مسیر Web → Capacitor → Android و جلوگیری از صفحه سفید.
 
-هسته آزمایشی مستقل DENTYAR VERSION 1.
-رمز ورود آزمایشی: 1234
+رمز ورود آزمایشی: هر مقدار غیرخالی.
 
-این بسته برای آزمون اولیه Web/PWA و ساخت APK در GitHub Actions است.
-این نسخه آزمایشی و پایه است، نه نسخه نهایی محصول کامل.
+Workflow: `.github/workflows/build-apk.yml`

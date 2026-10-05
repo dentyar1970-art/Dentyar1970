@@ -1,1 +1,1 @@
-{"name":"dentyar-version-1-experimental","version":"1.0.0","private":true,"scripts":{"cap:sync":"npx cap sync android"},"dependencies":{"@capacitor/core":"^7.4.3","@capacitor/android":"^7.4.3","@capacitor/cli":"^7.4.3"}}
+{"name":"dentyar-v1-experimental","version":"1.0.0","private":true,"scripts":{"cap:sync":"npx cap sync android"},"dependencies":{"@capacitor/core":"^7.4.3","@capacitor/android":"^7.4.3","@capacitor/cli":"^7.4.3"}}
