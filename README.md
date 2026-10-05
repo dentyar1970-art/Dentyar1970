@@ -1,8 +1,7 @@
-# DENTYAR VERSION 1
-نسخه آماده برای استقرار وب/PWA و ساخت APK با Capacitor.
+# DENTYAR VERSION 1 — Experimental Foundation
 
-مرکز: مطب لبخند زیبا
-طراح، مدیر پروژه و پشتیبان: حمید آل کثیر
-معماری: Local-first | Sync-ready | Native-ready
+هسته آزمایشی مستقل DENTYAR VERSION 1.
+رمز ورود آزمایشی: 1234
 
-برای ساخت APK از GitHub Actions فایل `.github/workflows/build-apk.yml` را در مخزن قرار دهید.
+این بسته برای آزمون اولیه Web/PWA و ساخت APK در GitHub Actions است.
+این نسخه آزمایشی و پایه است، نه نسخه نهایی محصول کامل.
